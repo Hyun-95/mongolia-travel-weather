@@ -183,24 +183,6 @@ GitHub Pages 배포 후 아래 주소에서 사용할 수 있습니다.
 
 ---
 
-## 사용 방법
-
-저장소의 HTML 파일을 `index.html`로 변경한 뒤 GitHub Pages로 배포하면 됩니다.
-
-GitHub:
-
-`Settings → Pages → Deploy from a branch`
-
-Branch:
-
-`main / root`
-
-설정 후 아래 형식의 주소로 접속할 수 있습니다.
-
-`https://YOUR_GITHUB_ID.github.io/mongolia-travel-weather/`
-
----
-
 ## License
 
 자유롭게 사용하거나 수정하여 사용할 수 있습니다.
