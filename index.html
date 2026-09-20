@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#181511">
+<title>몽골 여행 날씨</title>
+<link rel="preconnect" href="https://api.open-meteo.com">
+<link rel="preconnect" href="https://archive-api.open-meteo.com">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#181511;--panel:#24201b;--panel2:#2d2720;--line:#40372e;--text:#f6efe5;--muted:#ada296;--sand:#e3c386;--blue:#8ecae6;--ok:#a7d7a9;--bad:#ffc3ba}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;overflow-x:hidden;background:radial-gradient(900px 430px at 75% -120px,rgba(198,157,91,.20),transparent 64%),linear-gradient(180deg,#181511,#1d1915);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR",Segoe UI,sans-serif}.wrap{max-width:1200px;margin:auto;padding:20px 14px 52px}.card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:20px;box-shadow:0 14px 34px rgba(0,0,0,.24)}.hidden{display:none!important}
+header{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;flex-wrap:wrap;padding:14px 2px 18px}.eye{color:var(--sand);font-size:12px;font-weight:900;letter-spacing:.1em}h1{margin:5px 0 8px;font-size:clamp(29px,5vw,46px);letter-spacing:-.045em;line-height:1.08}.sub{color:var(--muted);font-size:13px;line-height:1.65;max-width:800px}.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:14px;padding:10px 12px;cursor:pointer}.btn:disabled{opacity:.5;cursor:wait}.btn.primary{background:var(--sand);color:#271f16;border-color:var(--sand);font-weight:900}.btn.ghost{background:transparent}.updated{font-size:11px;color:var(--muted);margin-top:7px;text-align:right}
+.home-intro{padding:6px 0 10px}.home-title{font-size:17px;font-weight:950;margin-bottom:5px}.home-desc{font-size:12px;color:var(--muted);line-height:1.55}.region-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}.region-card{position:relative;overflow:hidden;min-height:170px;padding:20px;border:1px solid var(--line);border-radius:22px;cursor:pointer;background:linear-gradient(145deg,#302920,#211d19);color:var(--text);text-align:left;transition:transform .16s,border-color .16s}.region-card:hover{transform:translateY(-2px);border-color:#6a5945}.region-card .emoji{font-size:34px;margin-bottom:22px}.region-card .rname{font-size:24px;font-weight:950;letter-spacing:-.035em}.region-card .rcount{font-size:11px;color:#c9beaf;margin-top:6px}.region-card .rdesc{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5;max-width:390px}.region-card::after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;right:-55px;top:-60px;background:rgba(227,195,134,.08)}.region-card.disabled{opacity:.55;cursor:default}.home-custom{margin-top:12px;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.home-custom b{font-size:14px}.home-custom span{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+.picker{padding:16px;margin-top:12px}.picker-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.picker-title{font-size:17px;font-weight:950}.picker-note{font-size:11px;color:var(--muted);line-height:1.55;margin-top:4px}.pick-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}.pick-group{border:1px solid var(--line);border-radius:17px;padding:12px;background:#211d19}.pick-group h3{font-size:13px;margin:0 0 9px}.checks{display:grid;gap:6px}.check{display:flex;align-items:center;gap:8px;padding:8px 9px;border:1px solid #352f28;border-radius:11px;background:#1d1a17;font-size:11px;cursor:pointer}.check input{accent-color:#d8b36f}.picker-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}.pick-count{font-size:11px;color:var(--muted)}
+.dash-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px}.dash-name{font-size:19px;font-weight:950}.dash-sub{font-size:11px;color:var(--muted);margin-top:3px}.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;position:sticky;top:0;z-index:600;padding:9px 0;background:rgba(24,21,17,.92);backdrop-filter:blur(10px)}.tab{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:14px;padding:10px 9px;font-weight:900;width:100%;min-width:0;line-height:1.25;white-space:normal;text-align:center;cursor:pointer}.tab.active{background:var(--sand);color:#271f16;border-color:var(--sand)}.view{display:none}.view.active{display:block}
+.mapwrap{padding:7px;position:relative}#map{height:min(65vh,660px);min-height:445px;border-radius:17px;background:#201d19}.mapnote{position:absolute;z-index:500;left:18px;right:18px;bottom:18px;background:rgba(24,21,17,.91);border:1px solid var(--line);padding:8px 10px;border-radius:11px;color:#c7bbad;font-size:10px;pointer-events:none}.pin{background:#211d19;border:1px solid #665845;color:white;border-radius:13px;box-shadow:0 7px 22px rgba(0,0,0,.35);min-width:78px;padding:6px 8px;text-align:center;transform:translate(-50%,-50%)}.pin .t{font-size:17px;font-weight:950}.pin .n{font-size:9px;color:#ded3c6;white-space:nowrap;margin-top:3px;max-width:115px;overflow:hidden;text-overflow:ellipsis}.leaflet-div-icon{background:transparent;border:0}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#211d19;color:#fff}.weather-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px;margin-top:10px}.mini{padding:13px}.mini-top{display:flex;justify-content:space-between;gap:10px}.place{font-size:13px;font-weight:900}.big{font-size:26px;font-weight:950}.desc,.meta{font-size:11px;color:var(--muted)}.meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.row-scroll{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}.row-scroll::-webkit-scrollbar{display:none}.loc{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:999px;padding:9px 11px;white-space:nowrap;font-size:11px;font-weight:850;cursor:pointer}.loc.active{background:var(--sand);color:#271f16;border-color:var(--sand)}.switch{margin:2px 0 10px}.current{padding:18px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}.ctitle{font-size:22px;font-weight:950}.csub{font-size:12px;color:var(--muted);margin-top:5px}.ctemp{font-size:48px;font-weight:950}.details{grid-column:1/-1;display:flex;gap:7px;flex-wrap:wrap}.pill{background:#1c1916;border:1px solid var(--line);border-radius:999px;padding:7px 9px;font-size:11px}.stitle{font-size:14px;font-weight:950;margin:18px 2px 9px}.days{display:flex;gap:9px;width:100%;max-width:100%;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding-bottom:7px}.days::-webkit-scrollbar{display:none}.day{flex:0 0 126px;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:12px;cursor:pointer}.day.active{border-color:var(--sand);box-shadow:inset 0 0 0 1px var(--sand)}.day.long{opacity:.72}.date{font-size:11px;font-weight:900}.ico{font-size:23px;margin:6px 0}.range{font-weight:950}.feel,.rain{font-size:10px;color:var(--muted);margin-top:3px}.rain{color:var(--blue);margin-top:7px}.hour{padding:14px;overflow:hidden}.hourhead{font-size:17px;font-weight:950;margin-bottom:8px}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:680px}th,td{padding:10px 9px;border-bottom:1px solid var(--line);font-size:11px;text-align:center}th{font-size:9px;color:var(--muted)}td:first-child,th:first-child{text-align:left}
+.historybox{padding:16px}.historycontrols{display:flex;gap:9px;align-items:end;flex-wrap:wrap}.field label{display:block;font-size:10px;color:var(--muted);margin:0 0 6px 2px}.dateinput{background:#1d1a17;border:1px solid var(--line);border-radius:13px;padding:10px 12px;color:var(--text);font:inherit;color-scheme:dark}.historyhint{font-size:11px;color:var(--muted);line-height:1.55;margin-top:10px}.historytitle{font-size:18px;font-weight:950;margin-top:17px}.historysub{font-size:11px;color:var(--muted);margin-top:3px}.historygrid{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin-top:10px;width:100%;min-width:0}.hcard{padding:13px;width:100%;min-width:0;overflow:hidden}.hhead{display:flex;justify-content:space-between;gap:10px}.hdaystrip{display:flex;gap:8px;width:100%;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;margin-top:10px;padding:0 1px 5px}.hdaystrip::-webkit-scrollbar{display:none}.hday{flex:0 0 125px;min-width:0;scroll-snap-align:start;background:#1d1a17;border:1px solid var(--line);border-radius:15px;padding:10px}.hdate{font-size:10px;font-weight:900}.hicon{font-size:21px;margin:6px 0}.htemp{font-size:15px;font-weight:950}.hfeel,.hsmall{font-size:9px;color:var(--muted);margin-top:3px;line-height:1.45}.sourcebadge{display:inline-block;font-size:9px;border:1px solid var(--line);border-radius:999px;padding:4px 6px;color:#b7aa9a;margin-top:8px}.status{margin-top:10px;padding:11px 13px;border:1px solid var(--line);border-radius:12px;color:#cfc4b7;font-size:11px;line-height:1.5}.status.err{color:var(--bad);border-color:#80534e}.status.ok{color:var(--ok);border-color:#4c694f}.foot{text-align:center;color:#81776c;font-size:10px;line-height:1.55;margin-top:18px}a{color:#d9b979}
+@media(max-width:720px){.region-grid{grid-template-columns:1fr}.pick-groups{grid-template-columns:1fr}}
+@media(max-width:620px){html,body{width:100%;max-width:100%;overflow-x:hidden}.wrap{width:100%;max-width:100%;padding:10px 10px 38px;overflow-x:hidden}header{gap:10px;padding-top:10px}.region-card{min-height:145px;padding:17px}.region-card .emoji{margin-bottom:14px}.region-card .rname{font-size:21px}.tabs{gap:6px;padding:7px 0}.tab{padding:9px 4px;font-size:10.5px;min-height:48px;display:flex;align-items:center;justify-content:center;word-break:keep-all}#map{height:58vh;min-height:410px}.weather-cards{grid-template-columns:1fr}.current{padding:15px}.ctemp{font-size:43px}.day{flex:0 0 112px;padding:10px}.historybox{padding:13px;min-width:0;overflow:hidden}.historycontrols{display:grid;grid-template-columns:1fr;gap:8px;align-items:stretch;width:100%;min-width:0}.historycontrols .field,.historycontrols .btn,.dateinput{width:100%;min-width:0}.historytitle{font-size:17px;line-height:1.3}.historysub{font-size:10px;line-height:1.45}.hcard{padding:11px}.hdaystrip{gap:7px}.hday{flex-basis:108px;padding:9px}.htemp{font-size:14px}.hsmall{font-size:8.5px}.picker{padding:13px}}
+@media(max-width:390px){.tabs{gap:5px}.tab{font-size:9.5px;padding:8px 3px;min-height:46px}.hday{flex-basis:102px}.day{flex-basis:106px}}
+</style>
+</head>
+<body><div class="wrap">
+<header><div><div class="eye">MONGOLIA TRAVEL WEATHER</div><h1>몽골 여행 날씨</h1><div class="sub">몽골 주요 관광지의 현재 날씨, 14일 예보, 시간대별 예보와 전년도 같은 기간의 날씨를 지역별로 확인합니다.</div></div><div id="headerActions" class="hidden"><button class="btn" id="refreshBtn">↻ 날씨 새로고침</button><div class="updated" id="updatedAt">불러오는 중…</div></div></header>
+<section id="homeView"><div class="home-intro"><div class="home-title">어느 지역을 여행하시나요?</div><div class="home-desc">지역을 선택하면 대표 관광지의 날씨를 한 번에 볼 수 있습니다. 지도에는 이동 경로 없이 각 관광지의 현재 날씨만 표시됩니다.</div></div><div class="region-grid" id="regionGrid"></div><div class="card home-custom"><div><b>여러 지역을 섞어서 보고 싶다면?</b><span>원하는 관광지만 직접 골라서 지도·예보·작년 날씨를 확인할 수 있습니다.</span></div><button class="btn primary" id="openPickerBtn">✓ 원하는 지역 직접 선택</button></div><div id="pickerBox" class="card picker hidden"><div class="picker-head"><div><div class="picker-title">관광지 직접 선택</div><div class="picker-note">선택 정보는 저장하지 않습니다. 새로고침하거나 페이지를 다시 열면 초기화됩니다.</div></div><button class="btn ghost" id="closePickerBtn">닫기</button></div><div class="pick-groups" id="pickGroups"></div><div class="picker-actions"><div class="pick-count" id="pickCount">0개 선택됨</div><div style="display:flex;gap:7px"><button class="btn" id="clearPickBtn">선택 해제</button><button class="btn primary" id="applyPickBtn">선택한 곳 보기</button></div></div></div></section>
+<section id="dashboardView" class="hidden"><div class="dash-head"><div><div class="dash-name" id="dashName">지역 날씨</div><div class="dash-sub" id="dashSub"></div></div><button class="btn" id="backHomeBtn">← 지역 다시 선택</button></div><nav class="tabs"><button class="tab active" data-view="mapView">🗺 날씨 지도</button><button class="tab" data-view="forecastView">🌤 지역별 14일 예보</button><button class="tab" data-view="historyView">🕰 작년 날씨</button></nav><section id="mapView" class="view active"><div class="card mapwrap"><div id="map"></div><div class="mapnote">지도에는 선택된 관광지의 현재 날씨만 표시합니다. 사막·호수·산악 지역은 해당 좌표의 수치예보 모델 값입니다.</div></div><div class="weather-cards" id="weatherCards"></div><div class="status" id="mapStatus">지역을 선택하면 날씨를 불러옵니다.</div></section><section id="forecastView" class="view"><div class="row-scroll switch" id="locationSwitcher"></div><div class="card current" id="currentHero"><div><div class="ctitle">불러오는 중…</div><div class="csub">날씨 API 연결 중</div></div><div class="ctemp">--°</div></div><div class="stitle">14일 예상 · 8일차 이후는 장기예보라 변동성이 더 큽니다</div><div class="days" id="dailyStrip"></div><div class="stitle">시간대별 예보 · 3시간 간격</div><div class="card hour"><div class="hourhead" id="hourDate">날짜 선택</div><div class="tablewrap"><table><thead><tr><th>시간</th><th>날씨</th><th>기온</th><th>체감</th><th>강수</th><th>바람</th><th>돌풍</th></tr></thead><tbody id="hourBody"></tbody></table></div></div><div class="status" id="forecastStatus">지역을 선택하면 날씨를 불러옵니다.</div></section><section id="historyView" class="view"><div class="card historybox"><div class="stitle" style="margin-top:0">전년도 같은 기간 · 7일 날씨 확인</div><div class="historycontrols"><div class="field"><label for="historyDate">비교를 시작할 날짜</label><input class="dateinput" id="historyDate" type="date"></div><button class="btn" id="historyLoadBtn">전년도 7일 불러오기</button></div><div class="historyhint">기본 날짜는 이 페이지를 여는 날의 오늘 날짜입니다. 원하는 출발일을 지정하면 그 날짜부터 7일간의 전년도 같은 기간을 선택된 관광지에서 비교합니다. 관광지마다 현장 관측소가 있는 것은 아니므로 과거값은 관측자료와 수치모델을 결합한 기상 재분석 자료를 사용합니다.</div><div class="status" id="historyStatus">날짜를 선택하고 불러오기를 눌러주세요.</div></div><div class="historytitle" id="historyTitle"></div><div class="historysub" id="historySub"></div><div class="historygrid" id="historyGrid"></div></section></section>
+<div class="foot">Weather: <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo</a> · Map: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap contributors</a><br>이 웹앱은 별도 회원정보나 선택 내역을 저장하지 않습니다. 선택한 관광지의 날씨는 가능한 한 한 번의 묶음 요청으로 불러옵니다. 실제 현장 날씨는 지형·고도·국지풍에 따라 달라질 수 있습니다.</div></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(()=>{
+const LOCATIONS=[
+{id:'airport',name:'칭기스칸 국제공항',short:'울란바토르 공항',lat:47.6467,lon:106.8200,regions:['south','central','north']},{id:'terelj',name:'테를지 국립공원',short:'테를지',lat:47.9074,lon:107.4229,regions:['south','central','north']},{id:'ikhgazar',name:'이흐 가즈링 촐로',short:'이흐 가즈링 촐로',lat:45.91667,lon:107.18333,regions:['south']},{id:'bagagazar',name:'바가 가즈링 촐로',short:'바가 가즈링 촐로',lat:46.22997,lon:106.07021,regions:['south']},{id:'bayanzag',name:'바얀작 · Flaming Cliffs',short:'바얀작',lat:44.13850,lon:103.72778,regions:['south']},{id:'khongor',name:'홍고린엘스',short:'홍고린엘스',lat:43.79602,lon:102.18117,regions:['south']},{id:'yolyn',name:'욜링암',short:'욜링암',lat:43.48895,lon:104.06711,regions:['south']},{id:'tsagaan',name:'차강소브라가',short:'차강소브라가',lat:44.57614,lon:105.71962,regions:['south']},{id:'tsogt',name:'촉트어워',short:'촉트어워',lat:44.42180,lon:105.32070,regions:['south']},{id:'elsen',name:'미니사막 · 엘승타사르하이',short:'엘승타사르하이',lat:47.33210,lon:103.68310,regions:['central']},{id:'kharkhorin',name:'카라코룸 · 하르호린',short:'카라코룸',lat:47.19739,lon:102.82896,regions:['central']},{id:'tsenkher',name:'쳉헤르 온천',short:'쳉헤르 온천',lat:47.31668,lon:101.65226,regions:['central']},{id:'ugii',name:'어기호수',short:'어기호수',lat:47.77069,lon:102.76739,regions:['central']},{id:'chuluut',name:'출루트 협곡',short:'출루트 협곡',lat:48.19555,lon:100.33397,regions:['central']},{id:'khorgo',name:'허르거 터거 · 차강호수',short:'허르거·차강호수',lat:48.18380,lon:99.80758,regions:['central']},{id:'khuvsgul',name:'홉스골 호수 · 하트갈',short:'홉스골 호수',lat:50.46044,lon:100.17524,regions:['north']},{id:'urantogoo',name:'오랑 터거 · 볼강',short:'오랑 터거',lat:49.16667,lon:102.65000,regions:['north']},
+{id:'kharnuur',name:'하르노르 · 보르하린 사막',short:'하르노르·보르하린',lat:48.31694,lon:95.12942,regions:['west']},
+{id:'senjit',name:'센지드하드 · Senjit Khad',short:'센지드하드',lat:48.21555,lon:96.14864,regions:['west']},
+{id:'mukhart',name:'모하르트강 · Mukhart River',short:'모하르트강',lat:48.20991,lon:95.94612,regions:['west']},
+{id:'khyargas',name:'하르가스 호수 · Khyargas Lake',short:'하르가스 호수',lat:49.20000,lon:93.40000,regions:['west']},
+{id:'tsagaangol',name:'차강골 · Tsagaan Gol',short:'차강골',lat:49.09754,lon:88.10383,regions:['west']},
+{id:'tavanbogd',name:'타왕복드 · Altai Tavan Bogd',short:'타왕복드',lat:49.15035,lon:87.94238,regions:['west']},
+{id:'bayanulgii',name:'바양울기 · 울기',short:'바양울기',lat:48.96820,lon:89.96210,regions:['west']}];
+const BY_ID=Object.fromEntries(LOCATIONS.map(x=>[x.id,x]));
+const REGIONS=[{id:'south',name:'남부',emoji:'🏜️',desc:'고비사막 · 차강소브라가 · 바얀작 · 홍고린엘스 · 욜링암',ids:['airport','terelj','ikhgazar','bagagazar','bayanzag','khongor','yolyn','tsagaan','tsogt']},{id:'central',name:'중부',emoji:'🏕️',desc:'미니사막 · 카라코룸 · 온천 · 어기호수 · 출루트 · 차강호수',ids:['airport','terelj','elsen','kharkhorin','tsenkher','ugii','chuluut','khorgo']},{id:'north',name:'북부 · 홉스골',emoji:'🏔️',desc:'테를지 · 홉스골 호수 · 오랑 터거',ids:['airport','terelj','khuvsgul','urantogoo']},{id:'west',name:'서부',emoji:'⛰️',desc:'보르하린 사막 · 센지드하드 · 모하르트강 · 하르가스 호수 · 차강골 · 타왕복드 · 바양울기',ids:['kharnuur','senjit','mukhart','khyargas','tsagaangol','tavanbogd','bayanulgii']}];
+const $=id=>document.getElementById(id);const els={homeView:$('homeView'),dashboardView:$('dashboardView'),regionGrid:$('regionGrid'),openPickerBtn:$('openPickerBtn'),pickerBox:$('pickerBox'),closePickerBtn:$('closePickerBtn'),pickGroups:$('pickGroups'),pickCount:$('pickCount'),clearPickBtn:$('clearPickBtn'),applyPickBtn:$('applyPickBtn'),headerActions:$('headerActions'),refreshBtn:$('refreshBtn'),updatedAt:$('updatedAt'),dashName:$('dashName'),dashSub:$('dashSub'),backHomeBtn:$('backHomeBtn'),weatherCards:$('weatherCards'),mapStatus:$('mapStatus'),locationSwitcher:$('locationSwitcher'),currentHero:$('currentHero'),dailyStrip:$('dailyStrip'),hourDate:$('hourDate'),hourBody:$('hourBody'),forecastStatus:$('forecastStatus'),historyDate:$('historyDate'),historyLoadBtn:$('historyLoadBtn'),historyStatus:$('historyStatus'),historyTitle:$('historyTitle'),historySub:$('historySub'),historyGrid:$('historyGrid')};
+let selectedIds=[],weather={},selectedLoc=null,selectedDate=null,map=null,markers={};
+const forecastMemory=new Map(),historyMemory=new Map();
+const FORECAST_CACHE_MS=10*60*1000;
+function isoToday(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function addDaysISO(iso,days){const [y,m,d]=iso.split('-').map(Number);const x=new Date(Date.UTC(y,m-1,d));x.setUTCDate(x.getUTCDate()+days);return `${x.getUTCFullYear()}-${String(x.getUTCMonth()+1).padStart(2,'0')}-${String(x.getUTCDate()).padStart(2,'0')}`}
+function prevYearDate(iso){const [y,m,d]=iso.split('-').map(Number);const x=new Date(Date.UTC(y-1,m-1,d));if(x.getUTCMonth()!==m-1)x.setUTCDate(0);return `${x.getUTCFullYear()}-${String(x.getUTCMonth()+1).padStart(2,'0')}-${String(x.getUTCDate()).padStart(2,'0')}`}
+function dateLabel(iso){const d=new Date(iso+'T12:00:00+08:00');return `${d.getMonth()+1}/${d.getDate()} (${'일월화수목금토'[d.getDay()]})`}
+function weatherText(c){c=Number(c);if(c===0)return['☀️','맑음'];if(c===1)return['🌤️','대체로 맑음'];if(c===2)return['⛅','부분적으로 흐림'];if(c===3)return['☁️','흐림'];if([45,48].includes(c))return['🌫️','안개'];if([51,53,55,56,57].includes(c))return['🌦️','이슬비'];if([61,63,65,66,67].includes(c))return['🌧️','비'];if([71,73,75,77,85,86].includes(c))return['🌨️','눈'];if([80,81,82].includes(c))return['🌦️','소나기'];if([95,96,99].includes(c))return['⛈️','뇌우'];return['🌡️','기상정보']}
+const temp=v=>Number.isFinite(v)?`${Math.round(v)}°`:'--',wind=v=>Number.isFinite(v)?`${Math.round(v)} km/h`:'--';function setStatus(el,msg,type=''){el.className='status'+(type?' '+type:'');el.textContent=msg}
+function renderRegions(){els.regionGrid.innerHTML=REGIONS.map(r=>`<button class="region-card ${r.disabled?'disabled':''}" data-region="${r.id}" ${r.disabled?'disabled':''}><div class="emoji">${r.emoji}</div><div class="rname">${r.name}</div><div class="rcount">${r.ids.length?`${r.ids.length}개 관광지`:'관광지 추가 예정'}</div><div class="rdesc">${r.desc}</div></button>`).join('');els.regionGrid.querySelectorAll('[data-region]').forEach(b=>b.addEventListener('click',()=>{const r=REGIONS.find(x=>x.id===b.dataset.region);if(r&&!r.disabled)openDashboard(r.ids,`${r.emoji} ${r.name}`,r.desc)}))}
+function renderPicker(){const groups=REGIONS.filter(r=>!r.disabled);els.pickGroups.innerHTML=groups.map(r=>`<div class="pick-group"><h3>${r.emoji} ${r.name}</h3><div class="checks">${r.ids.map(id=>`<label class="check"><input type="checkbox" value="${id}"><span>${BY_ID[id].name}</span></label>`).join('')}</div></div>`).join('');els.pickGroups.addEventListener('change',e=>{if(!e.target.matches('input[type="checkbox"]'))return;const id=e.target.value,checked=e.target.checked;els.pickGroups.querySelectorAll(`input[value="${id}"]`).forEach(x=>x.checked=checked);updatePickCount()})}
+function selectedPickerIds(){return[...new Set([...els.pickGroups.querySelectorAll('input:checked')].map(x=>x.value))]}function updatePickCount(){els.pickCount.textContent=`${selectedPickerIds().length}개 선택됨`}
+function setupTabs(){document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));btn.classList.add('active');$(btn.dataset.view).classList.add('active');if(btn.dataset.view==='mapView'&&map)setTimeout(()=>{map.invalidateSize();fitMap()},70)}))}
+function initMap(){if(map)return;map=L.map('map',{zoomControl:true});L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(map);map.setView([46.9,103.8],5)}function clearMarkers(){Object.values(markers).forEach(m=>map.removeLayer(m));markers={}}function fitMap(){if(!map||!selectedIds.length)return;const pts=selectedIds.map(id=>[BY_ID[id].lat,BY_ID[id].lon]);pts.length===1?map.setView(pts[0],8):map.fitBounds(L.latLngBounds(pts).pad(.15),{animate:false})}
+function renderMarkers(){clearMarkers();selectedIds.forEach(id=>{const loc=BY_ID[id],w=weather[id],q=w?weatherText(w.current.weather_code):['⏳','불러오는 중'],t=w?temp(w.current.temperature_2m):'--';const icon=L.divIcon({className:'',html:`<div class="pin"><div>${q[0]}</div><div class="t">${t}</div><div class="n">${loc.short}</div></div>`,iconSize:[1,1],iconAnchor:[0,0]});const m=L.marker([loc.lat,loc.lon],{icon}).addTo(map);m.on('click',()=>{const z=weather[id];if(!z)return;const [ic,desc]=weatherText(z.current.weather_code);m.bindPopup(`<b>${loc.name}</b><br>${ic} ${desc} · ${temp(z.current.temperature_2m)}<br>체감 ${temp(z.current.apparent_temperature)} · 바람 ${wind(z.current.wind_speed_10m)}`).openPopup()});markers[id]=m});fitMap()}
+function forecastBatchUrl(ids,days=14){
+const locs=ids.map(id=>BY_ID[id]);
+const p=new URLSearchParams({
+latitude:locs.map(x=>x.lat).join(','),
+longitude:locs.map(x=>x.lon).join(','),
+current:'temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,wind_gusts_10m',
+hourly:'temperature_2m,apparent_temperature,precipitation_probability,weather_code,wind_speed_10m,wind_gusts_10m',
+daily:'weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max',
+timezone:'Asia/Ulaanbaatar',forecast_days:String(days),cell_selection:'land'});
+return'https://api.open-meteo.com/v1/forecast?'+p.toString()}
+function historyBatchUrl(ids,startDate,endDate){
+const locs=ids.map(id=>BY_ID[id]);
+const p=new URLSearchParams({
+latitude:locs.map(x=>x.lat).join(','),
+longitude:locs.map(x=>x.lon).join(','),
+start_date:startDate,end_date:endDate,
+daily:'weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,precipitation_sum,snowfall_sum,wind_speed_10m_max,wind_gusts_10m_max',
+timezone:'Asia/Ulaanbaatar',cell_selection:'land'});
+return'https://archive-api.open-meteo.com/v1/archive?'+p.toString()}
+function normalizeBatch(raw){return Array.isArray(raw)?raw:[raw]}
+function chunks(arr,size){const out=[];for(let i=0;i<arr.length;i+=size)out.push(arr.slice(i,i+size));return out}
+async function fetchJSON(url,timeout=16000){
+const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),timeout);
+try{const r=await fetch(url,{signal:ctl.signal,cache:'no-store'});if(!r.ok)throw Error(`HTTP ${r.status}`);return await r.json()}
+finally{clearTimeout(timer)}}
+async function withRetry(fn,retries=1){let e;for(let i=0;i<=retries;i++){try{return await fn()}catch(x){e=x}}throw e}
+async function fetchForecastBatch(ids){
+if(!ids.length)return{};
+try{
+const raw=await withRetry(()=>fetchJSON(forecastBatchUrl(ids,14),18000),1);
+const list=normalizeBatch(raw);
+if(list.length!==ids.length)throw Error(`응답 수 불일치 ${list.length}/${ids.length}`);
+return Object.fromEntries(ids.map((id,i)=>[id,list[i]]))
+}catch(primaryErr){
+const merged={};
+for(const part of chunks(ids,6)){
+let raw;
+try{raw=await fetchJSON(forecastBatchUrl(part,14),16000)}
+catch(e){raw=await fetchJSON(forecastBatchUrl(part,7),16000)}
+const list=normalizeBatch(raw);
+if(list.length!==part.length)throw primaryErr;
+part.forEach((id,i)=>merged[id]=list[i])
+}
+return merged
+}}
+async function openDashboard(ids,title,sub){selectedIds=[...new Set(ids)].filter(id=>BY_ID[id]);if(!selectedIds.length)return;weather={};selectedLoc=selectedIds[0];selectedDate=null;els.homeView.classList.add('hidden');els.dashboardView.classList.remove('hidden');els.headerActions.classList.remove('hidden');els.dashName.textContent=title;els.dashSub.textContent=sub||`${selectedIds.length}개 관광지`;initMap();renderMarkers();buildLocationSwitcher();setStatus(els.mapStatus,`${selectedIds.length}개 관광지의 최신 날씨를 불러오는 중입니다…`);setStatus(els.forecastStatus,'최신 예보를 불러오는 중입니다…');await loadForecast()}
+async function loadForecast(){
+if(!selectedIds.length)return;
+els.refreshBtn.disabled=true;
+const now=Date.now(),missing=[];
+let cacheHits=0;
+selectedIds.forEach(id=>{
+const c=forecastMemory.get(id);
+if(c&&now-c.time<FORECAST_CACHE_MS){weather[id]=c.data;cacheHits++}
+else missing.push(id)
+});
+if(missing.length){
+setStatus(els.mapStatus,`${selectedIds.length}개 관광지 중 ${missing.length}개 위치를 묶어서 불러오는 중입니다…`);
+setStatus(els.forecastStatus,`${missing.length}개 위치의 최신 예보를 한 번에 요청하는 중입니다…`);
+try{
+const fresh=await fetchForecastBatch(missing);
+Object.entries(fresh).forEach(([id,data])=>{weather[id]=data;forecastMemory.set(id,{time:Date.now(),data})})
+}catch(e){
+setStatus(els.mapStatus,`날씨 API 요청 실패: ${e.message}`,'err');
+setStatus(els.forecastStatus,`예보 API 요청 실패: ${e.message}`,'err')
+}}
+const ok=selectedIds.filter(id=>weather[id]).length;
+els.updatedAt.textContent='갱신 '+new Date().toLocaleString('ko-KR');
+renderMarkers();renderWeatherCards();buildLocationSwitcher();
+if(weather[selectedLoc])selectLocation(selectedLoc,true);
+else{const first=selectedIds.find(id=>weather[id]);if(first)selectLocation(first,false)}
+if(ok===selectedIds.length){
+const msg=missing.length===0
+?`API 재호출 없이 메모리 캐시에서 ${ok}개 관광지를 즉시 표시했습니다.`
+:`${ok}개 관광지의 최신 날씨를 불러왔습니다.${cacheHits?` ${cacheHits}개는 기존 데이터를 재사용했습니다.`:' 한 번의 묶음 요청을 우선 사용했습니다.'}`;
+setStatus(els.mapStatus,msg,'ok');
+setStatus(els.forecastStatus,'최신 예보를 불러왔습니다. 관광지와 날짜를 눌러 상세 예보를 확인하세요.','ok')
+}else{
+setStatus(els.mapStatus,`${ok}/${selectedIds.length}개 관광지의 날씨를 표시합니다.`,'err');
+setStatus(els.forecastStatus,`${ok}/${selectedIds.length}개 관광지의 예보를 표시합니다.`,'err')
+}
+els.refreshBtn.disabled=false
+}
+function renderWeatherCards(){els.weatherCards.innerHTML=selectedIds.map(id=>{const l=BY_ID[id],w=weather[id];if(!w)return`<div class="card mini"><div class="place">${l.short}</div><div class="desc">날씨 조회 실패</div></div>`;const [ic,desc]=weatherText(w.current.weather_code);return`<div class="card mini"><div class="mini-top"><div><div class="place">${l.short}</div><div class="desc">${ic} ${desc}</div></div><div class="big">${temp(w.current.temperature_2m)}</div></div><div class="meta"><span>체감 ${temp(w.current.apparent_temperature)}</span><span>바람 ${wind(w.current.wind_speed_10m)}</span><span>습도 ${Math.round(w.current.relative_humidity_2m)}%</span></div></div>`}).join('')}
+function buildLocationSwitcher(){els.locationSwitcher.innerHTML=selectedIds.map(id=>`<button class="loc ${id===selectedLoc?'active':''}" data-id="${id}">${BY_ID[id].short}</button>`).join('');els.locationSwitcher.querySelectorAll('.loc').forEach(b=>b.addEventListener('click',()=>selectLocation(b.dataset.id)))}
+function selectLocation(id,keep=false){selectedLoc=id;els.locationSwitcher.querySelectorAll('.loc').forEach(b=>b.classList.toggle('active',b.dataset.id===id));const l=BY_ID[id],w=weather[id];if(!w){els.currentHero.innerHTML=`<div><div class="ctitle">${l.name}</div><div class="csub">예보를 불러오지 못했습니다.</div></div><div class="ctemp">--°</div>`;els.dailyStrip.innerHTML='';els.hourBody.innerHTML='';return}const [ic,desc]=weatherText(w.current.weather_code);els.currentHero.innerHTML=`<div><div class="ctitle">${l.name}</div><div class="csub">${ic} ${desc} · 현재 기상</div></div><div class="ctemp">${temp(w.current.temperature_2m)}</div><div class="details"><span class="pill">체감 ${temp(w.current.apparent_temperature)}</span><span class="pill">습도 ${Math.round(w.current.relative_humidity_2m)}%</span><span class="pill">바람 ${wind(w.current.wind_speed_10m)}</span><span class="pill">돌풍 ${wind(w.current.wind_gusts_10m)}</span><span class="pill">고도 ${Math.round(w.elevation||0)}m</span></div>`;if(!keep||!selectedDate||!w.daily.time.includes(selectedDate))selectedDate=w.daily.time[0];renderDaily();renderHourly()}
+function renderDaily(){const w=weather[selectedLoc];if(!w)return;els.dailyStrip.innerHTML=w.daily.time.map((d,i)=>{const [ic]=weatherText(w.daily.weather_code[i]);return`<div class="day ${d===selectedDate?'active':''} ${i>=7?'long':''}" data-date="${d}"><div class="date">${dateLabel(d)}</div><div class="ico">${ic}</div><div class="range">${Math.round(w.daily.temperature_2m_min[i])}° / ${Math.round(w.daily.temperature_2m_max[i])}°</div><div class="feel">체감 ${Math.round(w.daily.apparent_temperature_min[i])}° / ${Math.round(w.daily.apparent_temperature_max[i])}°</div><div class="rain">강수 ${Math.round(w.daily.precipitation_probability_max[i]||0)}% · 바람 ${Math.round(w.daily.wind_speed_10m_max[i]||0)}km/h</div></div>`}).join('');els.dailyStrip.querySelectorAll('.day').forEach(c=>c.addEventListener('click',()=>{selectedDate=c.dataset.date;renderDaily();renderHourly()}))}
+function renderHourly(){const w=weather[selectedLoc];if(!w)return;els.hourDate.textContent=dateLabel(selectedDate);const rows=[];w.hourly.time.forEach((t,i)=>{if(!t.startsWith(selectedDate)||(+t.slice(11,13))%3!==0)return;const [ic,desc]=weatherText(w.hourly.weather_code[i]);rows.push(`<tr><td><b>${t.slice(11,16)}</b></td><td>${ic} ${desc}</td><td><b>${temp(w.hourly.temperature_2m[i])}</b></td><td>${temp(w.hourly.apparent_temperature[i])}</td><td>${Math.round(w.hourly.precipitation_probability[i]||0)}%</td><td>${wind(w.hourly.wind_speed_10m[i])}</td><td>${wind(w.hourly.wind_gusts_10m[i])}</td></tr>`)});els.hourBody.innerHTML=rows.join('')||'<tr><td colspan="7">시간대별 데이터가 없습니다.</td></tr>'}
+async function loadHistory(){
+if(!selectedIds.length)return;
+const base=els.historyDate.value;
+if(!base){setStatus(els.historyStatus,'기준 날짜를 선택해 주세요.','err');return}
+const targetStart=prevYearDate(base),targetEnd=addDaysISO(targetStart,6),baseEnd=addDaysISO(base,6);
+els.historyLoadBtn.disabled=true;els.historyGrid.innerHTML='';els.historyTitle.textContent='';els.historySub.textContent='';
+const historical={},missing=[];
+selectedIds.forEach(id=>{
+const key=`${id}|${targetStart}|${targetEnd}`;
+if(historyMemory.has(key))historical[id]=historyMemory.get(key);else missing.push(id)
+});
+if(missing.length){
+setStatus(els.historyStatus,`${targetStart} ~ ${targetEnd} 과거 날씨를 ${missing.length}개 위치에서 한 번에 불러오는 중입니다…`);
+try{
+try{
+const raw=await withRetry(()=>fetchJSON(historyBatchUrl(missing,targetStart,targetEnd),20000),1);
+const list=normalizeBatch(raw);
+if(list.length!==missing.length)throw Error(`응답 수 불일치 ${list.length}/${missing.length}`);
+missing.forEach((id,i)=>{historical[id]=list[i];historyMemory.set(`${id}|${targetStart}|${targetEnd}`,list[i])})
+}catch(primaryErr){
+for(const part of chunks(missing,6)){
+const raw=await fetchJSON(historyBatchUrl(part,targetStart,targetEnd),18000);
+const list=normalizeBatch(raw);
+if(list.length!==part.length)throw primaryErr;
+part.forEach((id,i)=>{historical[id]=list[i];historyMemory.set(`${id}|${targetStart}|${targetEnd}`,list[i])})
+}}
+}catch(e){setStatus(els.historyStatus,`과거 날씨 API 요청 실패: ${e.message}`,'err')}
+}
+let ok=0;
+els.historyGrid.innerHTML=selectedIds.map(id=>{
+const loc=BY_ID[id],obj=historical[id];
+if(!obj?.daily?.time?.length)return`<div class="card hcard"><div class="place">${loc.short}</div><div class="desc">과거 데이터 조회 실패</div></div>`;
+ok++;const d=obj.daily;
+const cards=d.time.map((day,j)=>{
+const [ic,desc]=weatherText(d.weather_code[j]);
+return`<div class="hday"><div class="hdate">${dateLabel(day)}</div><div class="hicon">${ic}</div><div class="htemp">${Math.round(d.temperature_2m_min[j])}° ~ ${Math.round(d.temperature_2m_max[j])}°</div><div class="hfeel">체감 ${Math.round(d.apparent_temperature_min[j])}° ~ ${Math.round(d.apparent_temperature_max[j])}°</div><div class="hsmall">${desc}<br>강수 ${(d.precipitation_sum[j]??0).toFixed(1)} mm<br>최대풍속 ${Math.round(d.wind_speed_10m_max[j]||0)} km/h</div></div>`
+}).join('');
+return`<div class="card hcard"><div class="hhead"><div><div class="place">${loc.name}</div><div class="desc">전년도 7일 기상</div></div><div style="font-size:23px">🕰️</div></div><div class="hdaystrip">${cards}</div><span class="sourcebadge">관측자료 + 수치모델 재분석 기반</span></div>`
+}).join('');
+els.historyTitle.textContent=`${targetStart} ~ ${targetEnd} · 전년도 7일`;
+els.historySub.textContent=`선택 기간 ${base} ~ ${baseEnd}와 같은 시기의 전년도 날씨 · 관광지 좌표 기준`;
+if(ok===selectedIds.length){
+setStatus(els.historyStatus,missing.length===0
+?`${ok}개 관광지의 과거 날씨를 API 재호출 없이 메모리에서 표시했습니다.`
+:`${ok}개 관광지의 전년도 7일 날씨를 묶음 요청으로 불러왔습니다.`,'ok')
+}else setStatus(els.historyStatus,`${ok}/${selectedIds.length}개 관광지의 과거 날씨를 표시합니다.`,'err');
+els.historyLoadBtn.disabled=false
+}
+function returnHome(){selectedIds=[];weather={};selectedLoc=null;selectedDate=null;els.dashboardView.classList.add('hidden');els.homeView.classList.remove('hidden');els.headerActions.classList.add('hidden');document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',i===0));document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));$('mapView').classList.add('active');els.historyGrid.innerHTML='';els.historyTitle.textContent='';els.historySub.textContent=''}
+els.openPickerBtn.addEventListener('click',()=>{els.pickerBox.classList.remove('hidden');els.pickerBox.scrollIntoView({behavior:'smooth',block:'start'})});els.closePickerBtn.addEventListener('click',()=>els.pickerBox.classList.add('hidden'));els.clearPickBtn.addEventListener('click',()=>{els.pickGroups.querySelectorAll('input').forEach(x=>x.checked=false);updatePickCount()});els.applyPickBtn.addEventListener('click',()=>{const ids=selectedPickerIds();if(!ids.length){alert('관광지를 한 곳 이상 선택해 주세요.');return}openDashboard(ids,'✓ 직접 선택',`${ids.length}개 관광지를 선택해서 보고 있습니다.`)});els.backHomeBtn.addEventListener('click',returnHome);els.refreshBtn.addEventListener('click',()=>{
+selectedIds.forEach(id=>forecastMemory.delete(id));
+loadForecast()
+});els.historyLoadBtn.addEventListener('click',loadHistory);renderRegions();renderPicker();setupTabs();els.historyDate.value=isoToday();
+})();
+</script></body></html>
