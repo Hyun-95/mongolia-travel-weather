@@ -12,7 +12,7 @@
 
 GitHub Pages 배포 후 아래 주소에서 사용할 수 있습니다.
 
-`https://YOUR_GITHUB_ID.github.io/mongolia-travel-weather/`
+`https://Hyun-95.github.io/mongolia-travel-weather/`
 
 ---
 
